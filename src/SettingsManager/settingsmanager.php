@@ -7,9 +7,9 @@ class settingsManager {
     
     /**
      *
-     * @var array
+     * @var data
      */
-    private $_settings = array();
+    private $_data = array();
     
     /**
      * To speed up access
@@ -28,16 +28,16 @@ class settingsManager {
      * Allow the settings to be changed 
      * @var bool
      */
-    private $_allowChange = false;
-    
+    private $_allowChange = false;    
     
     /**
      * Initialize the class and set the settings data
      * 
      * @param array $settings 
+     * @param bool $allowChange
      */
-    public function __construct($settings, $allowChange = false) {
-        $this->_settings = $settings;      
+    public function __construct($data, $allowChange = false) {
+        $this->_data = $data;      
         $this->_allowChange = $allowChange;        
     }
     
@@ -50,24 +50,14 @@ class settingsManager {
     * @throws OutOfBoundsException 
     */
     public function get($section) {
-        if (isset($this->_cache[$section]))
-            return $this->_cache[$section];        
+        if ($this->_useCache && isset($this->_cache[$section]))
+            return $this->_cache[$section];
         
-        $sections = explode('/',$section);
-        $tempSectionData = $this->_settings; 
-        
-        foreach ($sections as $currentSection) {                        
-            if (!isset($tempSectionData[$currentSection])) {
-                throw new \OutOfBoundsException($section . ' - ' . $currentSection);
-            }            
-            $tempSectionData = $tempSectionData[$currentSection];
-        }
-                
-        return $tempSectionData;            
+        return $this->_engine($section);    
     }
     
     public function set($section, $value) {
-        
+        return $this->_engine($section, $value);
     }
     
     /**
@@ -125,8 +115,9 @@ class settingsManager {
      * @throws \OutOfBoundsException 
      */
     private function _engine($section, $value = null) {
+        
         $sections = explode('/',$section);
-        $tempSectionData = $this->_settings; 
+        $tempSectionData = $this->_data; 
 
         foreach ($sections as $currentSection) {        
             if (!isset($tempSectionData[$currentSection])) {
@@ -137,9 +128,16 @@ class settingsManager {
         }
 
         if ($value) {
-            $tempSectionData = $value;								
+            if (!$this->_allowChange)
+                throw new TryToChangeImmutableObjectException();
+            
+            $tempSectionData = $value;            
+            if ($this->_useCache)
+                unset($this->_cache[$section]);
         }	
 
         return $tempSectionData;
     }            
 }
+
+class TryToChangeImmutableObjectException extends \Exception {}
