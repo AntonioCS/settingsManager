@@ -2,24 +2,26 @@
 
 namespace SettingsManager;
 
-
+/**
+ * To ease access of config data
+ *  
+ */
 class settingsManager {
     
     /**
-     *
-     * @var data
+     * Where that data will be held
+     * @var array
      */
     private $_data = array();
     
     /**
      * To speed up access
-     * @var type 
+     * @var array
      */
     private $_cache = array();
     
     /**
-     * To use or not to use the cache (that is the question!!)
-     * 
+     * To use or not to use the cache (that is the question!!)     
      * @var bool
      */
     private $_useCache = true;
@@ -33,12 +35,14 @@ class settingsManager {
     /**
      * Initialize the class and set the settings data
      * 
-     * @param array $settings 
-     * @param bool $allowChange
+     * @param array $data
+     * @param bool $allowChange - Default false
+     * @param bool $useCache - Default true
      */
-    public function __construct($data, $allowChange = false) {
+    public function __construct($data, $allowChange = false, $useCache = true) {
         $this->_data = $data;      
-        $this->_allowChange = $allowChange;        
+        $this->_allowChange = $allowChange; 
+        $this->_useCache = $useCache;
     }
     
     /**
@@ -56,6 +60,16 @@ class settingsManager {
         return $this->_engine($section);    
     }
     
+    /**
+     * If allowed this will set the given section to the given value
+     * 
+     * @param string $section
+     * @param mixed $value
+     * @return mixed 
+     * 
+     * @throws OutOfBoundsException
+     * @throws TryToChangeImmutableObjectException
+     */
     public function set($section, $value) {
         return $this->_engine($section, $value);
     }
@@ -64,6 +78,7 @@ class settingsManager {
      * Check and see if section exists
      * 
      * @param string $section 
+     * @return bool
      */
     public function exists($section) {       
         try {
@@ -75,30 +90,7 @@ class settingsManager {
         
         return true;
     }
-    
-    /**
-     * Set a section in the cache
-     * 
-     * @param string $section
-     * @return null 
-     */
-    public function cacheGet($section) {
-        if (isset($this->_cache[$section]))
-            return $this->_cache[$section];    
-        
-        return null;
-    }
-    
-    /**
-     * Set the cache value for given section
-     * 
-     * @param string $section
-     * @param mixed $value 
-     */
-    public function cacheSet($section, $value) {
-        $this->_cache[$section] = $value;        
-    }
-    
+       
     /**
      * Clear cache 
      */
@@ -112,12 +104,17 @@ class settingsManager {
      * @param string $section
      * @param mixed $value
      * @return mixed
-     * @throws \OutOfBoundsException 
+     * 
+     * @throws \OutOfBoundsException
+     * @throws TryToChangeImmutableObjectException
      */
     private function _engine($section, $value = null) {
         
+        if ($value && !$this->_allowChange)
+            throw new TryToChangeImmutableObjectException();
+        
         $sections = explode('/',$section);
-        $tempSectionData = $this->_data; 
+        $tempSectionData = &$this->_data; 
 
         foreach ($sections as $currentSection) {        
             if (!isset($tempSectionData[$currentSection])) {
@@ -128,11 +125,8 @@ class settingsManager {
         }
 
         if ($value) {
-            if (!$this->_allowChange)
-                throw new TryToChangeImmutableObjectException();
-            
             $tempSectionData = $value;            
-            if ($this->_useCache)
+            if ($this->_useCache && isset($this->_cache[$section]))
                 unset($this->_cache[$section]);
         }	
 

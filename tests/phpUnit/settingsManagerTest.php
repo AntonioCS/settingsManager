@@ -11,7 +11,7 @@ require('../../src/SettingsManager/settingsmanager.php');
 class settingsManagerTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @var settingsManager
+     * @var SettingsManager\settingsManager
      */
     protected $object;
     
@@ -56,51 +56,38 @@ class settingsManagerTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers SettingsManager\settingsManager::set
-     * @todo   Implement testSet().
+     * @covers SettingsManager\settingsManager::set     
      */
     public function testSet()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
+        $this->object = new SettingsManager\settingsManager($this->_testData, true);
+        
+        $this->object->set('data','changed');                
+        $this->assertTrue($this->object->get('data') == 'changed');
+    }
+    
+    /**
+     * @expectedException SettingsManager\TryToChangeImmutableObjectException
+     */
+    public function testSetFailWithException() {
+        $this->object->set('data','change again');                
+        $this->assertTrue($this->object->get('data') == 'change again');
     }
 
     /**
-     * @covers SettingsManager\settingsManager::exists
-     * @todo   Implement testExists().
+     * @covers SettingsManager\settingsManager::exists     
      */
     public function testExists()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
+        $this->assertTrue($this->object->exists('data2/date3'));
     }
-
+    
     /**
-     * @covers SettingsManager\settingsManager::cacheGet
-     * @todo   Implement testCacheGet().
+     * @covers SettingsManager\settingsManager::exists     
      */
-    public function testCacheGet()
+    public function testNotExists()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
-    }
-
-    /**
-     * @covers SettingsManager\settingsManager::cacheSet
-     * @todo   Implement testCacheSet().
-     */
-    public function testCacheSet()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
+        $this->assertTrue($this->object->exists('noData') === false);
     }
 
     /**
@@ -109,9 +96,6 @@ class settingsManagerTest extends PHPUnit_Framework_TestCase
      */
     public function testClearCache()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
+        
     }
 }
