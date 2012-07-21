@@ -6,7 +6,7 @@ namespace SettingsManager;
  * To ease access of config data
  *  
  */
-class settingsManager {
+class settingsManager extends \ArrayObject {
     
     /**
      * Where that data will be held
@@ -43,21 +43,24 @@ class settingsManager {
         $this->_data = $data;      
         $this->_allowChange = $allowChange; 
         $this->_useCache = $useCache;
+        
+        parent::__construct($data);
     }
     
     /**
-    * Access the _config property and return specified section
+    * Access the _data property and return specified section
     * 
     * @param string $section - Example: section/config
     * @return mixed
     * 
     * @throws OutOfBoundsException 
     */
-    public function get($section) {
-        if ($this->_useCache && isset($this->_cache[$section]))
+    public function fetch($section) {
+        if ($this->_useCache && isset($this->_cache[$section])) {
             return $this->_cache[$section];
+        }
         
-        return $this->_engine($section);    
+        return $this->_parse($section);
     }
     
     /**
@@ -65,24 +68,25 @@ class settingsManager {
      * 
      * @param string $section
      * @param mixed $value
-     * @return mixed 
+     * @return self 
      * 
      * @throws OutOfBoundsException
      * @throws TryToChangeImmutableObjectException
      */
-    public function set($section, $value) {
-        return $this->_engine($section, $value);
+    public function setValue($section, $value) {
+        $this->_parse($section, $value);
+        return $this;
     }
     
     /**
-     * Check and see if section exists
+     * Check and see if section path exists
      * 
      * @param string $section 
      * @return bool
      */
-    public function exists($section) {       
+    public function pathExists($section) {       
         try {
-            $this->get($section);
+            $this->fetch($section);
         }
         catch (\OutOfBoundsException $e) {
             return false;
@@ -99,6 +103,15 @@ class settingsManager {
     }
     
     /**
+     * To check if it is possible to change the values
+     * 
+     * @return bool
+     */
+    public function isWrittable() {
+        return $this->_allowChange;
+    }
+    
+    /**
      * Get/Set a value from the settings property
      * 
      * @param string $section
@@ -108,7 +121,7 @@ class settingsManager {
      * @throws \OutOfBoundsException
      * @throws TryToChangeImmutableObjectException
      */
-    private function _engine($section, $value = null) {
+    private function _parse($section, $value = null) {
         
         if ($value && !$this->_allowChange)
             throw new TryToChangeImmutableObjectException();
