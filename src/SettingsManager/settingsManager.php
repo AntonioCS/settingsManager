@@ -79,6 +79,25 @@ class settingsManager {
     }
     
     /**
+     * Merge the given value with the sections value
+     * 
+     * @param string $section
+     * @param array $value 
+     * @return self
+     */
+    public function mergeValue($section,array $value) {
+        if ($this->pathExists($section)) {
+            $v = array_merge($value,(array)$this->fetch($section));
+            $this->setValue($section, $v);                        
+        }
+        else {
+            $this->setValue($section, $value);
+        }
+        
+        return $this;        
+    }
+    
+    /**
      * Check and see if section path exists
      * 
      * @param string $section 
@@ -130,8 +149,12 @@ class settingsManager {
         $tempSectionData = &$this->_data; 
 
         foreach ($sections as $currentSection) {        
-            if (!isset($tempSectionData[$currentSection])) {
-                throw new \OutOfBoundsException($section . ' - ' . $currentSection);
+            if (!isset($tempSectionData[$currentSection])) {                       
+                if (!$value) { //If we are not setting a new value
+                    throw new \OutOfBoundsException($section . ' - ' . $currentSection);
+                }
+                                
+                $tempSectionData[$currentSection] = array();
             }       
 
             $tempSectionData = &$tempSectionData[$currentSection];

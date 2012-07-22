@@ -97,6 +97,26 @@ class settingsManagerTest extends PHPUnit_Framework_TestCase
     public function testClearCache()
     {        
     }
+    
+    public function testSetValueNonExisting() {
+        $this->object = new SettingsManager\settingsManager($this->_testData, true);
+        $this->object->setValue("bla11/ble2/blaaaa", "vcvadsad");
+        
+        $this->assertTrue($this->object->fetch("bla11/ble2/blaaaa") == "vcvadsad");
+    }
+    
+    public function testMergeValue() {
+        $this->object = new SettingsManager\settingsManager($this->_testData, true);
+        $correctResult = array(
+                            'date3' => 4,
+                            'date4' => 5
+                        );     
+        $this->object->mergeValue('data2', array('date4' => 5));
+                
+        $result = array_diff($correctResult, $this->object->fetch('data2'));
+        $this->assertTrue(empty($result));
+        
+    }
     /*
     
     public function testAccessAsArray() {        
