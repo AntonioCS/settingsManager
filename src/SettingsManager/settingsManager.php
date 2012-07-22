@@ -6,7 +6,7 @@ namespace SettingsManager;
  * To ease access of config data
  *  
  */
-class settingsManager extends \ArrayObject {
+class settingsManager {
     
     /**
      * Where that data will be held
@@ -44,7 +44,7 @@ class settingsManager extends \ArrayObject {
         $this->_allowChange = $allowChange; 
         $this->_useCache = $useCache;
         
-        parent::__construct($data);
+        //parent::__construct($data);
     }
     
     /**
@@ -144,7 +144,33 @@ class settingsManager extends \ArrayObject {
         }	
 
         return $tempSectionData;
-    }            
+    }
+    
+    /*
+    public function offsetSet($offset, $value) {
+        var_dump($offset,$value);
+        exit('MMMMMMMMMMMMMMMMMMM');
+        
+        if (is_null($offset)) {
+            $this->container[] = $value;
+        } else {
+            $this->container[$offset] = $value;
+        }
+    }
+    
+    public function offsetExists($offset) {
+        return isset($this->container[$offset]);
+    }
+    public function offsetUnset($offset) {
+        unset($this->container[$offset]);
+    }
+    public function offsetGet($offset) {
+        var_dump($offset);
+        exit;
+        return isset($this->container[$offset]) ? $this->container[$offset] : null;
+    }
+     * 
+     */
 }
 
 class TryToChangeImmutableObjectException extends \Exception {}

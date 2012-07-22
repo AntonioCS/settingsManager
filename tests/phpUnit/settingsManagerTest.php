@@ -97,8 +97,17 @@ class settingsManagerTest extends PHPUnit_Framework_TestCase
     public function testClearCache()
     {        
     }
+    /*
     
     public function testAccessAsArray() {        
+        var_dump($this->object['data2']['date3']);
         $this->assertTrue($this->object['data2']['date3'] == 4);
     }
+    
+    public function testAccessSetValueAsArray() {
+        var_dump('aaaaaaaaaaaaaaaaaaaaa');
+        $this->object['adfadfadsfadf']['sdfdsfadsfdf'] = 4;
+    }
+     * 
+     */
 }
