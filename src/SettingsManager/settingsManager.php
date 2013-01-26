@@ -95,8 +95,8 @@ class settingsManager {
         }
         
         return $this;        
-    }
-    
+    }    
+
     /**
      * Check and see if section path exists
      * 
